@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CaipinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chushi_id as chushiId
+        ,a.caipin_name as caipinName
+        ,a.caipin_uuid_number as caipinUuidNumber
+        ,a.caipin_photo as caipinPhoto
+        ,a.caipin_types as caipinTypes
+        ,a.caipin_kouwe_types as caipinKouweTypes
+        ,a.caipin_content as caipinContent
+        ,a.caipin_delete as caipinDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CaipinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,chushi.chushi_uuid_number as chushiUuidNumber
+        ,chushi.chushi_name as chushiName
+        ,chushi.chushi_phone as chushiPhone
+        ,chushi.chushi_id_number as chushiIdNumber
+        ,chushi.chushi_photo as chushiPhoto
+        ,chushi.chushi_email as chushiEmail
+        ,chushi.chushi_file as chushiFile
+        ,chushi.chushi_video as chushiVideo
+        ,chushi.chushi_content as chushiContent
+        ,chushi.chushi_delete as chushiDelete
+
+        FROM caipin  a
+        left JOIN chushi chushi ON a.chushi_id = chushi.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.chushiId != null and params.chushiId != ''">
+                and (
+                    a.chushi_id = #{params.chushiId}
+                )
+            </if>
+            <if test=" params.caipinName != '' and params.caipinName != null and params.caipinName != 'null' ">
+                and a.caipin_name like CONCAT('%',#{params.caipinName},'%')
+            </if>
+            <if test=" params.caipinUuidNumber != '' and params.caipinUuidNumber != null and params.caipinUuidNumber != 'null' ">
+                and a.caipin_uuid_number like CONCAT('%',#{params.caipinUuidNumber},'%')
+            </if>
+            <if test="params.caipinTypes != null and params.caipinTypes != ''">
+                and a.caipin_types = #{params.caipinTypes}
+            </if>
+            <if test="params.caipinKouweTypes != null and params.caipinKouweTypes != ''">
+                and a.caipin_kouwe_types = #{params.caipinKouweTypes}
+            </if>
+            <if test=" params.caipinContent != '' and params.caipinContent != null and params.caipinContent != 'null' ">
+                and a.caipin_content like CONCAT('%',#{params.caipinContent},'%')
+            </if>
+            <if test="params.caipinDeleteStart != null and params.caipinDeleteStart != ''">
+                <![CDATA[  and a.caipin_delete >= #{params.caipinDeleteStart}   ]]>
+            </if>
+            <if test="params.caipinDeleteEnd != null and params.caipinDeleteEnd != ''">
+                <![CDATA[  and a.caipin_delete <= #{params.caipinDeleteEnd}   ]]>
+            </if>
+             <if test="params.caipinDelete != null and params.caipinDelete != ''">
+                and a.caipin_delete = #{params.caipinDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断厨师的id不为空 -->
+            <if test=" params.chushiIdNotNull != '' and params.chushiIdNotNull != null and params.chushiIdNotNull != 'null' ">
+                and a.chushi_id IS NOT NULL
+            </if>
+            <if test=" params.chushiUuidNumber != '' and params.chushiUuidNumber != null and params.chushiUuidNumber != 'null' ">
+                and chushi.chushi_uuid_number like CONCAT('%',#{params.chushiUuidNumber},'%')
+            </if>
+            <if test=" params.chushiName != '' and params.chushiName != null and params.chushiName != 'null' ">
+                and chushi.chushi_name like CONCAT('%',#{params.chushiName},'%')
+            </if>
+            <if test=" params.chushiPhone != '' and params.chushiPhone != null and params.chushiPhone != 'null' ">
+                and chushi.chushi_phone like CONCAT('%',#{params.chushiPhone},'%')
+            </if>
+            <if test=" params.chushiIdNumber != '' and params.chushiIdNumber != null and params.chushiIdNumber != 'null' ">
+                and chushi.chushi_id_number like CONCAT('%',#{params.chushiIdNumber},'%')
+            </if>
+            <if test=" params.chushiEmail != '' and params.chushiEmail != null and params.chushiEmail != 'null' ">
+                and chushi.chushi_email like CONCAT('%',#{params.chushiEmail},'%')
+            </if>
+            <if test=" params.chushiVideo != '' and params.chushiVideo != null and params.chushiVideo != 'null' ">
+                and chushi.chushi_video like CONCAT('%',#{params.chushiVideo},'%')
+            </if>
+            <if test=" params.chushiContent != '' and params.chushiContent != null and params.chushiContent != 'null' ">
+                and chushi.chushi_content like CONCAT('%',#{params.chushiContent},'%')
+            </if>
+            <if test="params.chushiDeleteStart != null  and params.chushiDeleteStart != '' ">
+                <![CDATA[  and chushi.chushi_delete >= #{params.chushiDeleteStart}   ]]>
+            </if>
+            <if test="params.chushiDeleteEnd != null  and params.chushiDeleteEnd != '' ">
+                <![CDATA[  and chushi.chushi_delete <= #{params.chushiDeleteEnd}   ]]>
+            </if>
+            <if test="params.chushiDelete != null  and params.chushiDelete != '' ">
+                and chushi.chushi_delete = #{params.chushiDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(chushi.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(chushi.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
